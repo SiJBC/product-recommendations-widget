@@ -304,10 +304,14 @@ h1 {
         const API_URL = 'https://australia-southeast1-stepone-backend.cloudfunctions.net/getProductRecommendations';
         const WIDGET_ID = 'product-recommendations-carousel';
 
-        // Analytics Mock Function
+        // Initialize dataLayer if it doesn't exist
+        window.dataLayer = window.dataLayer || [];
+
+        // Analytics Tracking Function
         function track(widgetId, eventType, productData) {
             const timestamp = new Date().toISOString();
             const eventData = {
+                event: 'product_recommendation',
                 widgetId,
                 eventType,
                 productData,
@@ -316,11 +320,11 @@ h1 {
                 screenSize: `${window.innerWidth}x${window.innerHeight}`
             };
 
-            // Log to console (simulating sending to analytics service)
-            console.log('📊 Analytics Event:', eventData);
+            // Push to dataLayer for GTM/GA4
+            window.dataLayer.push(eventData);
 
-            // In production, this would send to your analytics service
-            // Example: sendToAnalyticsService(eventData);
+            // Also log to console for debugging
+            console.log('📊 Analytics Event:', eventData);
         }
 
         // Show/Hide UI States
@@ -406,8 +410,6 @@ h1 {
 
                     showSwiper();
 
-                    // Initialize both carousels with the same products
-                    initCartCarousel(products);
 
                     // Initialize Swiper after slides are rendered
                     const swiper = new Swiper('.swiper', {
@@ -513,78 +515,8 @@ h1 {
             alert(`Added "${product.title}" to cart!`);
         }
 
-        function initCartCarousel(products) {
-            const cartSwiperWrapper = document.querySelector('#cart-swiper-container .swiper-wrapper');
-
-            cartSwiperWrapper.innerHTML = products.map((product) => {
-                const safeProduct = JSON.stringify(product).replace(/'/g, "&apos;");
-                return `
-                <div class="swiper-slide" data-cart-product-id="${product.id}">
-                    <div class="cart-slide" onclick='handleCartProductClick(${safeProduct})'>
-                        <img src="${product.images[0]}"
-                             alt="${product.title}"
-                             onerror="this.src='https://via.placeholder.com/150x150?text=No+Image'">
-                        <h4>${product.title}</h4>
-                        <p>${product.product_type}</p>
-                        <button onclick='handleCartAddToCart(${safeProduct}, event)'>
-                            Add to Cart
-                        </button>
-                    </div>
-                </div>
-            `;
-            }).join('');
-
-            document.getElementById('cart-loading').style.display = 'none';
-            document.getElementById('cart-swiper-container').style.display = 'block';
-
-            new Swiper('#cart-swiper-container', {
-                slidesPerView: 1,
-                spaceBetween: 12,
-                pagination: {
-                    el: '.cart-pagination',
-                    clickable: true,
-                },
-                on: {
-                    slideChange: function () {
-                        const activeSlide = this.slides[this.activeIndex];
-                        const productId = activeSlide?.getAttribute('data-cart-product-id');
-                        if (productId) {
-                            track(CART_WIDGET_ID, 'slide-view', { productId, slideIndex: this.activeIndex });
-                        }
-                    }
-                }
-            });
-
-            track(CART_WIDGET_ID, 'products-loaded', { count: products.length });
-        }
-
-        // Initial load - modified to populate both carousels
         loadProducts();
     </script>
-
-    <!-- Second Carousel: Side Cart Style -->
-    <div style="max-width: 450px; margin: 60px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 600;">You May Also Like</h2>
-
-        <!-- Loading State -->
-        <div id="cart-loading" class="cart-loading">
-            <div class="spinner-small"></div>
-        </div>
-
-        <!-- Error State -->
-        <div id="cart-error" class="cart-error" style="display: none;">
-            <p>Unable to load recommendations</p>
-            <button class="retry-small-btn" onclick="loadCartRecommendations()">Retry</button>
-        </div>
-
-        <!-- Swiper for side cart -->
-        <div id="cart-swiper-container" class="cart-swiper" style="display: none;">
-            <div class="swiper-wrapper">
-                <!-- Slides will be dynamically loaded -->
-            </div>
-            <div class="swiper-pagination cart-pagination"></div>
-        </div>
-    </div>
 
 
     <script>

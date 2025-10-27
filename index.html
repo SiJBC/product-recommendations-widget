@@ -491,9 +491,6 @@ h1 {
                 });
         }
 
-        // ===== SIDE CART CAROUSEL (Second Carousel) =====
-        const CART_WIDGET_ID = 'cart-recommendations-carousel';
-
         function handleCartProductClick(product) {
             track(CART_WIDGET_ID, 'product-click', {
                 productId: product.id,
@@ -518,39 +515,6 @@ h1 {
         loadProducts();
     </script>
 
-
-    <script>
-        // Initialize third placeholder carousel
-        new Swiper('#placeholder-swiper-container', {
-            direction: 'horizontal',
-            loop: true,
-            slidesPerView: 1,
-            spaceBetween: 30,
-
-            pagination: {
-                el: '#placeholder-swiper-container .swiper-pagination',
-                clickable: true,
-            },
-
-            navigation: {
-                nextEl: '#placeholder-swiper-container .swiper-button-next',
-                prevEl: '#placeholder-swiper-container .swiper-button-prev',
-            },
-
-            scrollbar: {
-                el: '#placeholder-swiper-container .swiper-scrollbar',
-            },
-
-            breakpoints: {
-                640: {
-                    slidesPerView: 2,
-                },
-                1024: {
-                    slidesPerView: 3,
-                },
-            }
-        });
-    </script>
 </body>
 
 </html>
